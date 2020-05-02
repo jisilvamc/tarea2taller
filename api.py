@@ -224,4 +224,8 @@ def delete_ham_ing_id(hamburguesaid, ingredienteid):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+	app.run()
+    # app.run(port=33507)
+    # app.run(debug=True)
+
+# app.run(debug=True)
