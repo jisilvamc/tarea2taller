@@ -60,6 +60,8 @@ def post_ing():
     try:
         dic = request.json
         nombre, descripcion = dic.get("nombre"), dic.get("descripcion")
+        if nombre == "" or descripcion == "":
+        	return "Input invalido", 400
         cur.execute("INSERT INTO ingrediente(nombre, descripcion) VALUES ('{}', '{}');".format(nombre, descripcion))
         conn.commit()
         new_ing = cur.execute("SELECT * FROM ingrediente ORDER BY id DESC LIMIT 1;".format()).fetchall()[0]
@@ -121,6 +123,8 @@ def post_ham():
     try:
         dic = request.json
         nombre, precio, descripcion, imagen = dic.get("nombre"), dic.get("precio"), dic.get("descripcion"), dic.get("imagen")
+        if nombre == "" or precio == "" or descripcion == "" or imagen == "":
+        	retun "Input invalido", 400
         cur.execute("INSERT INTO hamburguesa(nombre, precio, descripcion, imagen) "
                     "VALUES ('{}', {}, '{}', '{}');".format(nombre, precio, descripcion, imagen))
         conn.commit()
@@ -220,7 +224,7 @@ def delete_ham_ing_id(hamburguesaid, ingredienteid):
         cur.execute('DELETE FROM hamburguesa_ingrediente WHERE '
                     'hamburguesa_id = {} and ingrediente_id={};'.format(hamburguesaid, ingredienteid))
         conn.commit()
-        return "Ingrediente retirado", 201
+        return "Ingrediente retirado", 200
 
 
 if __name__ == '__main__':
