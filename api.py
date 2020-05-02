@@ -223,5 +223,5 @@ def delete_ham_ing_id(hamburguesaid, ingredienteid):
         return "Ingrediente retirado", 201
 
 
-
-app.run()
+if __name__ == '__main__':
+    app.run(debug=True)
