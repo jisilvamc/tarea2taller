@@ -7,6 +7,7 @@ from flask import request, jsonify
 import sqlite3
 
 app = flask.Flask(__name__)
+application = app  # gunicorn
 app.config["DEBUG"] = True
 mi_path = "https://t2taller-jisilvamc.herokuapp.com"
 
