@@ -24,7 +24,8 @@ cur = conn.cursor()
 #cur.execute('CREATE TABLE hamburguesa (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre varchar(255), precio int, '
 #            'descripcion varchar(255), imagen varchar(255));')
 #cur.execute('DROP TABLE IF EXISTS ingrediente;')
-#cur.execute('CREATE TABLE ingrediente (id int, nombre varchar(255), descripcion varchar(255), PRIMARY KEY (id));')
+#cur.execute('CREATE TABLE ingrediente (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre varchar(255), '
+#            'descripcion varchar(255));')
 #cur.execute('DROP TABLE IF EXISTS hamburguesa_ingrediente;')
 #cur.execute('CREATE TABLE hamburguesa_ingrediente (id INTEGER PRIMARY KEY AUTOINCREMENT, hamburguesa_id int, '
 #            'ingrediente_id int, FOREIGN KEY(hamburguesa_id) REFERENCES hamburguesa(id), '
@@ -57,12 +58,10 @@ def post_ing():
     cur = conn.cursor()
     try:
         dic = request.args
-        id, nombre, descripcion = dic.get("id"), dic.get("nombre"), dic.get("descripcion")
-        if cur.execute("SELECT * FROM ingrediente WHERE id={};".format(id)).fetchall():
-            return "Input invalido", 400
-        cur.execute("INSERT INTO ingrediente VALUES ({}, '{}', '{}');".format(id, nombre, descripcion))
+        nombre, descripcion = dic.get("nombre"), dic.get("descripcion")
+        cur.execute("INSERT INTO ingrediente(nombre, descripcion) VALUES ('{}', '{}');".format(nombre, descripcion))
         conn.commit()
-        new_ing = cur.execute("SELECT * FROM ingrediente WHERE id={};".format(id)).fetchall()
+        new_ing = cur.execute("SELECT * FROM ingrediente ORDER BY id DESC LIMIT 1;".format()).fetchall()
         return jsonify(new_ing), 201
     except (KeyError):
         return "Input invalido", 400
@@ -124,7 +123,7 @@ def post_ham():
         cur.execute("INSERT INTO hamburguesa(nombre, precio, descripcion, imagen) "
                     "VALUES ('{}', {}, '{}', '{}');".format(nombre, precio, descripcion, imagen))
         conn.commit()
-        new_ham = cur.execute("SELECT * FROM hamburguesa ORDER BY id DESC LIMIT 1;".format()).fetchall()
+        new_ham = cur.execute("SELECT * FROM hamburguesa ORDER BY id DESC LIMIT 1;".format()).fetchall()[0]
         new_ham["ingredientes"] = []
         return jsonify(new_ham), 201
     except (KeyError):
@@ -164,11 +163,20 @@ def patch_ham_id(hamburguesaid):
     conn.row_factory = dict_factory
     cur = conn.cursor()
     try:
-        if not cur.execute('SELECT * FROM hamburguesa WHERE id = {};'.format(hamburguesaid)).fetchall():
+        hamburguesa = cur.execute('SELECT * FROM hamburguesa WHERE id = {};'.format(hamburguesaid)).fetchall()
+        if not hamburguesa:
             return "Hamburguesa inexistente", 404
         dic = request.args
-        nombre, precio, descripcion, imagen = dic.get("nombre"), dic.get("precio"), dic.get("descripcion"), dic.get(
-            "imagen")
+        nombre, precio, descripcion, imagen = hamburguesa[0]["nombre"], hamburguesa[0]["precio"], \
+                                              hamburguesa[0]["descripcion"], hamburguesa[0]["imagen"]
+        if "nombre" in dic.keys():
+            nombre = dic.get("nombre")
+        if "precio" in dic.keys():
+            precio = dic.get("precio")
+        if "descripcion" in dic.keys():
+            descripcion = dic.get("descripcion")
+        if "imagen" in dic.keys():
+            imagen = dic.get("imagen")
         cur.execute("UPDATE hamburguesa SET nombre='{}', precio={}, descripcion='{}', imagen='{}' WHERE id={};"
                     .format(nombre, precio, descripcion, imagen, hamburguesaid))
         conn.commit()
@@ -177,7 +185,7 @@ def patch_ham_id(hamburguesaid):
                                    'hamburguesa_id = {};'.format(hamburguesaid)).fetchall()
         patch_ham["ingredientes"] = [{"path": mi_path + "/ingrediente/" + str(i["ingrediente_id"])} for i in ingredientes]
         return jsonify(patch_ham), 200
-    except (KeyError):
+    except:
         return "Parámetros inválidos", 400
 
 
