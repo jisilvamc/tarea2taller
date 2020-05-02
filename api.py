@@ -1,5 +1,4 @@
 # Revisar descripcion al retornar un json; está el json y el status, pero no la descripción
-# Probelmas con Heroku...
 
 
 import flask
@@ -63,7 +62,7 @@ def post_ing():
         nombre, descripcion = dic.get("nombre"), dic.get("descripcion")
         cur.execute("INSERT INTO ingrediente(nombre, descripcion) VALUES ('{}', '{}');".format(nombre, descripcion))
         conn.commit()
-        new_ing = cur.execute("SELECT * FROM ingrediente ORDER BY id DESC LIMIT 1;".format()).fetchall()
+        new_ing = cur.execute("SELECT * FROM ingrediente ORDER BY id DESC LIMIT 1;".format()).fetchall()[0]
         return jsonify(new_ing), 201
     except (KeyError):
         return "Input invalido", 400
@@ -76,7 +75,7 @@ def get_ing_id(ingredienteid):
     try:
         if not ingredienteid.isdigit():
             return "id invalido", 400
-        ing = cur.execute('SELECT * FROM ingrediente WHERE id = {};'.format(ingredienteid)).fetchall()
+        ing = cur.execute('SELECT * FROM ingrediente WHERE id = {};'.format(ingredienteid)).fetchall()[0]
         return jsonify(ing), 200
     except:
         return "ingrediente inexistente", 404
