@@ -1,6 +1,4 @@
 # Revisar descripcion al retornar un json; está el json y el status, pero no la descripción
-# Revisar búsqueda inexistente
-# Revisar drop-create tables... quizás no se debieran hacer, subo el .db listo
 
 
 import flask
@@ -88,10 +86,13 @@ def delete_ing_id(ingredienteid):
     conn.row_factory = dict_factory
     cur = conn.cursor()
     try:
-        # REVISAR ESTO
-        # if cur.execute('SELECT * FROM hamburguesa_ingrediente') != []:
-            # return "Ingrediente no se puede borrar, se encuentra presente en una hamburguesa", 409
-        cur.execute('DELETE FROM ingrediente WHERE id = {};'.format(ingredienteid)).fetchall()
+        hamburguesas = cur.execute('SELECT hamburguesa_id FROM hamburguesa_ingrediente '
+                                   'WHERE ingrediente_id={}'.format(ingredienteid)).fetchall()
+        if hamburguesas:
+            for hamb in hamburguesas:
+                if cur.execute('SELECT id FROM hamburguesa WHERE id={}'.format(hamb["hamburguesa_id"])).fetchall():
+                    return "Ingrediente no se puede borrar, se encuentra presente en una hamburguesa", 409
+        cur.execute('DELETE FROM ingrediente WHERE id = {};'.format(ingredienteid))
         conn.commit()
         return "ingrediente eliminado", 200
     except:
@@ -105,7 +106,6 @@ def get_ham():
     conn.row_factory = dict_factory
     cur = conn.cursor()
     all_ham = cur.execute('SELECT * FROM hamburguesa;').fetchall()
-    # REVISAR ESTO agregar a all_ham los ingredientes
     for hamburguesa in all_ham:
         hamburguesaid = hamburguesa["id"]
         ingredientes = cur.execute('SELECT ingrediente_id FROM hamburguesa_ingrediente WHERE '
@@ -125,6 +125,7 @@ def post_ham():
                     "VALUES ('{}', {}, '{}', '{}');".format(nombre, precio, descripcion, imagen))
         conn.commit()
         new_ham = cur.execute("SELECT * FROM hamburguesa ORDER BY id DESC LIMIT 1;".format()).fetchall()
+        new_ham["ingredientes"] = []
         return jsonify(new_ham), 201
     except (KeyError):
         return "Input invalido", 400
@@ -163,9 +164,8 @@ def patch_ham_id(hamburguesaid):
     conn.row_factory = dict_factory
     cur = conn.cursor()
     try:
-        # REVISAR ESTO
-        # if cur.execute('SELECT * FROM hamburguesa WHERE id = {};'.format(hamburguesaid)).fetchall() == []:
-        #     return "Hamburguesa inexistente", 404
+        if not cur.execute('SELECT * FROM hamburguesa WHERE id = {};'.format(hamburguesaid)).fetchall():
+            return "Hamburguesa inexistente", 404
         dic = request.args
         nombre, precio, descripcion, imagen = dic.get("nombre"), dic.get("precio"), dic.get("descripcion"), dic.get(
             "imagen")
