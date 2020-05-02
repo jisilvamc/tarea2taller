@@ -1,4 +1,5 @@
 # Revisar descripcion al retornar un json; está el json y el status, pero no la descripción
+# Probelmas con Heroku...
 
 
 import flask
