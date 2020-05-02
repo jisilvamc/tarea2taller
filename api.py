@@ -58,7 +58,7 @@ def post_ing():
     conn.row_factory = dict_factory
     cur = conn.cursor()
     try:
-        dic = request.args
+        dic = request.json
         nombre, descripcion = dic.get("nombre"), dic.get("descripcion")
         cur.execute("INSERT INTO ingrediente(nombre, descripcion) VALUES ('{}', '{}');".format(nombre, descripcion))
         conn.commit()
@@ -119,7 +119,7 @@ def post_ham():
     conn.row_factory = dict_factory
     cur = conn.cursor()
     try:
-        dic = request.args
+        dic = request.json
         nombre, precio, descripcion, imagen = dic.get("nombre"), dic.get("precio"), dic.get("descripcion"), dic.get("imagen")
         cur.execute("INSERT INTO hamburguesa(nombre, precio, descripcion, imagen) "
                     "VALUES ('{}', {}, '{}', '{}');".format(nombre, precio, descripcion, imagen))
@@ -167,7 +167,7 @@ def patch_ham_id(hamburguesaid):
         hamburguesa = cur.execute('SELECT * FROM hamburguesa WHERE id = {};'.format(hamburguesaid)).fetchall()
         if not hamburguesa:
             return "Hamburguesa inexistente", 404
-        dic = request.args
+        dic = request.json
         nombre, precio, descripcion, imagen = hamburguesa[0]["nombre"], hamburguesa[0]["precio"], \
                                               hamburguesa[0]["descripcion"], hamburguesa[0]["imagen"]
         if "nombre" in dic.keys():
