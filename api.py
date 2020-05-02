@@ -8,7 +8,7 @@ import sqlite3
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
-mi_path = "https://hamburgueseria.com"
+mi_path = "https://t2taller-jisilvamc.herokuapp.com"
 
 
 def dict_factory(cursor, row):
