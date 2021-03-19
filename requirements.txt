@@ -7,7 +7,7 @@ colorama==0.4.3
 cycler==0.10.0
 decorator==4.4.2
 dj-database-url==0.5.0
-Django==3.0.5
+Django==3.1.6
 django-heroku==0.3.1
 Flask==1.1.2
 graphviz==0.14
